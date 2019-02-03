@@ -6,6 +6,7 @@ import TextField from '@material-ui/core/TextField';
 import Slider from '@material-ui/lab/Slider';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Divider from '@material-ui/core/Divider';
+import Button from '@material-ui/core/Button';
 
 import styled from 'styled-components';
 
@@ -59,15 +60,50 @@ const StrengthContainer = styled.div`
 
 class PassGenie extends Component {
     state = {
-        password: 'rt^266@2',
+        password: '',
         maxLength: 64,
         maxDigits: 10,
         maxSymbold: 10,
-        length: 12,
-        digits: 4,
+        length: 15,
+        digits: 6,
         symbold: 2
     }
 
+    componentDidMount() {
+        this.generatePassword();
+    }
+    generateRandom = (string, length) => {
+        return Array(length).fill(string).map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
+    }
+    generatePassword = () => {
+        // Gets symbols randomly with selected value
+        let symbold = this.generateRandom('=+-_]}[{/?.>,<', this.state.symbold);
+        // Gets digits randomly with selected value
+        let digits = this.generateRandom('0123456789', this.state.digits);
+        // Letter length will be the rest apart from symbols and digits
+        let length = this.state.length - this.state.symbold - this.state.digits;
+        // Get letters randomly upper and lower case
+        let letters = this.generateRandom('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', length);
+        let password = letters.concat(symbold, digits);
+        // Splits the password selected string into array
+        // Sorts the array items to random
+        // Joins array items with join
+        let shufflePassword = password.split('').sort(function () { return 0.5 - Math.random() }).join('');
+        // Set state for the password
+        this.setState({ password: shufflePassword })
+    }
+    handleChangeLength = (e, value) => {
+        this.setState({ length: Math.round(value) });
+        this.generatePassword();
+    }
+    handleChangeSymbold = (e, value) => {
+        this.setState({ symbold: Math.round(value) });
+        this.generatePassword();
+    }
+    handleChangeDigits = (e, value) => {
+        this.setState({ digits: Math.round(value) });
+        this.generatePassword();
+    }
     render() {
         return (
             <Wrapper>
@@ -81,13 +117,14 @@ class PassGenie extends Component {
                                 className='field'
                                 id="outlined-read-only-input"
                                 label="Password"
-                                defaultValue={this.state.password}
+                                value={this.state.password}
                                 margin="normal"
                                 InputProps={{
                                     readOnly: true,
                                 }}
                                 variant="outlined"
                             />
+                            <Button onClick={this.generatePassword}>Generate</Button>
                         </TextFieldContainer>
                         <ControllsContainer>
                             <StrengthContainer>
@@ -95,25 +132,59 @@ class PassGenie extends Component {
                                     <Typography component='span' className='name'>
                                         Name
                                     </Typography >
-                                    <Typography component='span'  className='value'>
+                                    <Typography component='span' className='value'>
                                         Value
                                     </Typography>
                                 </div>
-                                <LinearProgress color="secondary"  variant="buffer" value={20} valueBuffer={20} />
+                                <LinearProgress color="secondary" variant="buffer" value={20} valueBuffer={20} />
                             </StrengthContainer>
                             <Divider />
                             <SliderContainer>
                                 <div className='header'>
                                     <Typography component='span' className='name'>
-                                        Name
+                                        Length
                                     </Typography >
-                                    <Typography component='span'  className='value'>
-                                        Value
+                                    <Typography component='span' className='value'>
+                                        {this.state.length}
                                     </Typography>
                                 </div>
                                 <Slider
-                                    value={50}
+                                    value={this.state.length}
                                     aria-labelledby="label"
+                                    max={this.state.maxLength}
+                                    onChange={this.handleChangeLength}
+                                />
+                            </SliderContainer>
+                            <SliderContainer>
+                                <div className='header'>
+                                    <Typography component='span' className='name'>
+                                        Symbold
+                                    </Typography >
+                                    <Typography component='span' className='value'>
+                                        {this.state.symbold}
+                                    </Typography>
+                                </div>
+                                <Slider
+                                    value={this.state.symbold}
+                                    aria-labelledby="label"
+                                    max={this.state.maxSymbold}
+                                    onChange={this.handleChangeSymbold}
+                                />
+                            </SliderContainer>
+                            <SliderContainer>
+                                <div className='header'>
+                                    <Typography component='span' className='name'>
+                                        Digits
+                                    </Typography >
+                                    <Typography component='span' className='value'>
+                                        {this.state.digits}
+                                    </Typography>
+                                </div>
+                                <Slider
+                                    value={this.state.digits}
+                                    aria-labelledby="label"
+                                    max={this.state.maxDigits}
+                                    onChange={this.handleChangeDigits}
                                 />
                             </SliderContainer>
                         </ControllsContainer>
